@@ -5,6 +5,8 @@ require 'securerandom'
 require 'raven/error'
 require 'raven/linecache'
 
+require 'pry'
+
 module Raven
 
   class Event
@@ -58,13 +60,13 @@ module Raven
 
       block.call(self) if block
 
-      if @configuration.send_in_current_environment?
-        if !self[:http] && context.rack_env
-          self.interface :http do |int|
-            int.from_rack(context.rack_env)
-          end
-        end
-      end
+      # if @configuration.send_in_current_environment?
+      #   if !self[:http] && context.rack_env
+      #     self.interface :http do |int|
+      #       int.from_rack(context.rack_env)
+      #     end
+      #   end
+      # end
 
       # Some type coercion
       @timestamp = @timestamp.strftime('%Y-%m-%dT%H:%M:%S') if @timestamp.is_a?(Time)
@@ -85,8 +87,13 @@ module Raven
 
     def interface(name, value = nil, &block)
       int = Raven.find_interface(name)
-      raise Error.new("Unknown interface: #{name}") unless int
-      @interfaces[int.name] = int.new(value, &block) if value || block
+      raise "Unknown interface: #{name}" unless int
+      @interfaces[int.name] = int.new
+      if block
+        yield @interfaces[int.name]
+      elsif value
+        @interfaces[int.name] = int.new(value)
+      end
       @interfaces[int.name]
     end
 
@@ -115,8 +122,9 @@ module Raven
       data['extra'] = @extra if @extra
       data['tags'] = @tags if @tags
       data['user'] = @user if @user
+
       @interfaces.each_pair do |name, int_data|
-        data[name] = int_data.to_hash
+        data[name] = int_data.to_h.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
       end
       data
     end
@@ -147,10 +155,8 @@ module Raven
           int.value = exc.to_s
           int.module = exc.class.to_s.split('::')[0...-1].join('::')
 
-          # TODO(dcramer): this needs cleaned up, but I couldn't figure out how to
-          # work Hashie as a non-Rubyist
           if exc.backtrace
-            int.stacktrace = StacktraceInterface.new do |stacktrace|
+            int.stacktrace = Interface::Stacktrace.new do |stacktrace|
               backtrace = Backtrace.parse(exc.backtrace)
               stacktrace.frames = backtrace.lines.reverse.map do |line|
                 stacktrace.frame do |frame|
@@ -166,7 +172,7 @@ module Raven
               end.select { |f| f.filename }
 
               evt.culprit = evt.get_culprit(stacktrace.frames)
-            end
+            end.to_a
           end
         end
 

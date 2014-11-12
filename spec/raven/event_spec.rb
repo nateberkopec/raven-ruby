@@ -316,6 +316,7 @@ describe Raven::Event do
       end
 
       it 'parses the backtrace' do
+        binding.pry
         frames = hash['exception']['stacktrace']['frames']
         expect(frames.length).to eq(2)
         expect(frames[0]['lineno']).to eq(1412)
