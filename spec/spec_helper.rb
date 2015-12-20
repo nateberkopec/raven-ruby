@@ -1,4 +1,5 @@
 require 'raven'
+require File.dirname(__FILE__) + "/support/test_rails_app/app.rb"
 
 RSpec.configure do |config|
   config.mock_with(:rspec) { |mocks| mocks.verify_partial_doubles = true }
@@ -34,7 +35,6 @@ def build_exception_with_two_causes
 rescue ZeroDivisionError => exception
   return exception
 end
-
 
 def build_exception_with_recursive_cause
   backtrace = double("Backtrace")
