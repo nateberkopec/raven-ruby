@@ -104,4 +104,31 @@ describe Raven::Rack do
     stack = Raven::Rack.new(Rack::Lint.new(app))
     expect { stack.call(env) }.to_not raise_error
   end
+
+  context "when async and threaded" do
+    around do |example|
+      prior_config = Raven.configuration.dup
+      Raven.configure do |config|
+        config.dsn = 'dummy://notaserver'
+        config.encoding = 'json'
+        config.async = lambda { |event| Thread.new { Raven.send_event(event) }.join }
+      end
+
+      example.run
+
+      Raven.configuration = prior_config
+    end
+
+    it "should work" do
+      exception = build_exception
+      env = {}
+
+      app = lambda { |_e| raise exception }
+
+      stack = Raven::Rack.new(app)
+      stack.call(env) rescue nil
+
+      expect(Raven.client.transport.events.size).to eq(1)
+    end
+  end
 end
