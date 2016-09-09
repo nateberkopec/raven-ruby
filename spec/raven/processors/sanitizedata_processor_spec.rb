@@ -87,16 +87,16 @@ describe Raven::Processor::SanitizeData do
     data_with_embedded_json = {
       'data' => {
         'json' => %w(foo bar).to_json,
-        'json_hash' => {'foo' => 'bar'}.to_json,
-        'sensitive' => {'password' => 'secret'}.to_json
+        'json_hash' => { 'foo' => 'bar' }.to_json,
+        'sensitive' => { 'password' => 'secret' }.to_json
         }
       }
 
     result = @processor.process(data_with_embedded_json)
 
     expect(JSON.parse(result["data"]["json"])).to eq(%w(foo bar))
-    expect(JSON.parse(result["data"]["json_hash"])).to eq({'foo' => 'bar'})
-    expect(JSON.parse(result["data"]["sensitive"])).to eq({'password' => Raven::Processor::SanitizeData::STRING_MASK})
+    expect(JSON.parse(result["data"]["json_hash"])).to eq('foo' => 'bar')
+    expect(JSON.parse(result["data"]["sensitive"])).to eq('password' => Raven::Processor::SanitizeData::STRING_MASK)
   end
 
   it 'should not fail when json is invalid' do
@@ -108,7 +108,7 @@ describe Raven::Processor::SanitizeData do
 
     result = @processor.process(data_with_invalid_json)
 
-    expect{JSON.parse(result["data"]["invalid"])}.to raise_exception(JSON::ParserError)
+    expect { JSON.parse(result["data"]["invalid"]) }.to raise_exception(JSON::ParserError)
   end
 
   it 'should filter credit card values' do
@@ -116,7 +116,7 @@ describe Raven::Processor::SanitizeData do
       'ccnumba' => '4242424242424242',
       'ccnumba_13' => '4242424242424',
       'ccnumba-dash' => '4242-4242-4242-4242',
-      'ccnumba_int' => 4242424242424242,
+      'ccnumba_int' => 4242424242424242
     }
 
     result = @processor.process(data)
@@ -131,7 +131,7 @@ describe Raven::Processor::SanitizeData do
       'ccnumba' => '4242424242424242',
       'ccnumba_13' => '4242424242424',
       'ccnumba-dash' => '4242-4242-4242-4242',
-      'ccnumba_int' => 4242424242424242,
+      'ccnumba_int' => 4242424242424242
     }
 
     result = @processor.process(data)
@@ -142,8 +142,8 @@ describe Raven::Processor::SanitizeData do
 
   it 'sanitizes hashes nested in arrays' do
     data = {
-      "empty_array"=> [],
-      "array"=>[{'password' => 'secret'}],
+      "empty_array" => [],
+      "array" => [{ 'password' => 'secret' }]
     }
 
     result = @processor.process(data)

@@ -8,7 +8,6 @@ require 'raven/error'
 require 'raven/linecache'
 
 module Raven
-
   class Event
     LOG_LEVELS = {
       "debug" => 10,
@@ -16,7 +15,7 @@ module Raven
       "warn" => 30,
       "warning" => 30,
       "error" => 40,
-      "fatal" => 50,
+      "fatal" => 50
     }.freeze
 
     BACKTRACE_RE = /^(.+?):(\d+)(?::in `(.+?)')?$/
@@ -25,8 +24,8 @@ module Raven
 
     attr_reader :id
     attr_accessor :project, :message, :timestamp, :time_spent, :level, :logger,
-      :culprit, :server_name, :release, :modules, :extra, :tags, :context, :configuration,
-      :checksum, :fingerprint, :environment
+                  :culprit, :server_name, :release, :modules, :extra, :tags, :context, :configuration,
+                  :checksum, :fingerprint, :environment
 
     def initialize(init = {})
       @configuration = Raven.configuration
@@ -67,7 +66,7 @@ module Raven
 
       # Some type coercion
       @timestamp  = @timestamp.strftime('%Y-%m-%dT%H:%M:%S') if @timestamp.is_a?(Time)
-      @time_spent = (@time_spent*1000).to_i if @time_spent.is_a?(Float)
+      @time_spent = (@time_spent * 1000).to_i if @time_spent.is_a?(Float)
       @level      = LOG_LEVELS[@level.to_s.downcase] if @level.is_a?(String) || @level.is_a?(Symbol)
     end
 
@@ -217,7 +216,7 @@ module Raven
         :time_spent => @time_spent,
         :level => @level,
         :project => @project,
-        :platform => PLATFORM,
+        :platform => PLATFORM
       }
       data[:logger] = @logger if @logger
       data[:culprit] = @culprit if @culprit
@@ -252,10 +251,10 @@ module Raven
 
     # For cross-language compat
     class << self
-      alias :captureException :from_exception
-      alias :captureMessage :from_message
-      alias :capture_exception :from_exception
-      alias :capture_message :from_message
+      alias captureException from_exception
+      alias captureMessage from_message
+      alias capture_exception from_exception
+      alias capture_message from_message
     end
 
     private

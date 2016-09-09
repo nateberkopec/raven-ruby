@@ -38,7 +38,7 @@ module Raven
 
       begin
         transport.send_event(generate_auth_header, encoded_data,
-                       :content_type => content_type)
+                             :content_type => content_type)
         successful_send
       rescue => e
         failed_send(e, event)
@@ -115,7 +115,7 @@ module Raven
     def should_try?
       return true if @status == :online
 
-      interval = @retry_after || [@retry_number, 6].min ** 2
+      interval = @retry_after || [@retry_number, 6].min**2
       return true if Time.now - @last_check >= interval
 
       false

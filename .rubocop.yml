@@ -16,3 +16,6 @@ Style/ClassAndModuleChildren:
 
 Style/ParallelAssignment:
   Enabled: false
+
+Style/Documentation:
+  Enabled: false

@@ -146,7 +146,7 @@ module Raven
       'ActiveRecord::RecordNotFound',
       'CGI::Session::CookieStore::TamperedWithCookie',
       'Mongoid::Errors::DocumentNotFound',
-      'Sinatra::NotFound',
+      'Sinatra::NotFound'
     ].freeze
 
     # Note the order - we have to remove circular references and bad characters
@@ -156,7 +156,7 @@ module Raven
       Raven::Processor::UTF8Conversion,
       Raven::Processor::SanitizeData,
       Raven::Processor::Cookies,
-      Raven::Processor::PostData,
+      Raven::Processor::PostData
     ].freeze
 
     def initialize
@@ -250,7 +250,7 @@ module Raven
 
     def verify!
       %w(server public_key secret_key project_id).each do |key|
-        raise Error.new("No #{key} specified") unless self.public_send key
+        raise Error.new("No #{key} specified") unless public_send key
       end
     end
 
